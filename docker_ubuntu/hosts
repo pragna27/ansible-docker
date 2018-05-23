@@ -1,0 +1,7 @@
+[local]
+localhost       ansible_connection=local  ansible_user=root
+
+[ubuntu]
+
+172.30.4.116 ansible_connection=ssh ansible_user=root ansible_port=32768 ansible_ssh_pass=screencast
+

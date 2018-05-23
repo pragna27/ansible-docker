@@ -1,0 +1,19 @@
+
+
+Build the docker file
+
+docker build -t pragna_ssh .
+
+Run a container from the image
+docker run -d -P --name test_ssh pragna_ssh
+
+
+know the port for 22 on test_ssh
+docker port test_ssh 22
+
+
+logon using ssh
+ssh root@localhost -p <portnum obtained from docker port command>
+
+
+

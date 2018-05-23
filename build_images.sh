@@ -1,4 +1,4 @@
-
+# File to create docker images
 # Builds the docker images from the docker file
 
 echo "Build ubuntu docker file"
