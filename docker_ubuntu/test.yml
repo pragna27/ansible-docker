@@ -1,0 +1,15 @@
+---
+- hosts: all
+  tasks:
+    - name: this is the first task
+      command: echo "/home/pragna" > test.log1
+
+
+    - name: Create a directory
+      file: 
+         path: /home/pp186048
+         state: directory
+   
+    - name: Copying the files from local to container
+      copy: src=/home/pragna/copy_test.log dest=/home/pp186048/ 
+
