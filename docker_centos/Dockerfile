@@ -1,27 +1,32 @@
-FROM centos:7
-RUN yum update -y && \
-         yum clean all
+FROM centos:6.7
+RUN yum update -y ; yum clean all
 
-RUN yum install -y \
-    libunwind \
-    libicu
+RUN rpm --rebuilddb
+RUN  yum install -y yum-plugin-ovl
 
 # Setup Container for SSH
-WORKDIR /
-RUN yum install -y \
-    unzip \
-    openssh-server \
-    curl
+RUN yum install -y openssh-server ksh curl tar ; yum clean all
+RUN yum install -y libstdc++.i686 file cyrus-sasl-devel ; yum clean all
+RUN yum install -y perl perl-devel curl gcc ; yum clean all
+
+RUN curl -L cpanmin.us | perl - App::cpanminus
+RUN cpanm Spreadsheet::Read
+RUN cpanm Spreadsheet::ParseExcel
+RUN cpanm install Switch
+
 
 RUN mkdir -p /var/run/sshd
 RUN echo 'root:password' | chpasswd
 
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
-RUN /usr/bin/ssh-keygen -A 
+#RUN /usr/bin/ssh-keygen -A 
+RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N '' 
 
 ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
+
+
 
 EXPOSE 22
 

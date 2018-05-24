@@ -1,3 +1,10 @@
 [servers]
-server1 ansible_host=localhost ansible_connection=ssh ansible_user=root ansible_port=32778 ansible_ssh_pass=screencast
-server2 ansible_host=localhost ansible_connection=ssh ansible_user=root ansible_port=32779 ansible_ssh_pass=password
+
+
+server2 ansible_host=localhost ansible_connection=ssh ansible_user=root ansible_port=32788 ansible_ssh_pass=password
+server3 ansible_host=localhost ansible_connection=ssh ansible_user=root ansible_port=32792 ansible_ssh_pass=password
+#server3 ansible_host=localhost ansible_connection=ssh ansible_user=root ansible_port=32782 ansible_ssh_pass=password
+ 
+[ubuntu]
+
+#server1 ansible_host=localhost ansible_connection=ssh ansible_user=root ansible_port=32787 ansible_ssh_pass=screencast
