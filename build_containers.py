@@ -1,11 +1,5 @@
 #!/usr/bin/python
 
-#pp186048_centos_sshd
-#pp186048_ubuntu_sshd
-
-#p = Popen("docker run -i -t --name="%s" dockerfile/python /bin/bash", stdin=PIPE)
-#p.communicate("timeout 0.5 python | head -n 500000 \n" % run_this) 
-
 import sys
 import subprocess
 import os
@@ -34,12 +28,23 @@ def create_containers(image, containername):
       proc = subprocess.Popen([command], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
       proc.wait()
       stdout, stderr = proc.communicate() 
+
+      if "ubuntu" in image:
+         server = "ubuntu"
+
+      if "centos" in image:
+         server = "centos"
+
+      if stdout:
+          get_port(containername, server)
+      if stderr:
+          raise Exception
    except Exception as e:
       print ("Caught Exception in create_container")
       raise e
 
 def destroy_existing_containers(container):
-    try: 
+   try: 
        print container
        command = "docker rm -f " + container 
        proc = subprocess.Popen([command], shell=True,  stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -50,15 +55,31 @@ def destroy_existing_containers(container):
       print ("Caught Exception in create_container")
       raise e
 
-def get_port(container):
-   try: 
-      command = "docker port" + " " + container
-      proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-      stdout, stderr = proc.communicate()
-      print stdout.rsplit(':',2)[1]
-      
     
+def get_port(container, server):
+   try:
+      command = "docker port" + " " + container
+      proc = subprocess.Popen([command], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      stdout, stderr = proc.communicate()
+      if stderr:
+         print stderr
+         raise Exception("Found in get_port")
+      port = stdout.rsplit(':',2)[1] #port number
+      if port and port.strip():
+         pass
+      else:
+         raise Exception("Port not found")
+      print  ("writing for %s ", server)
+      text = server + " " + "ansible_host=localhost ansible_connection=ssh ansible_user=root ansible_ssh_pass=password ansible_port=" + port
+      fd = open("hosts_new", "a+")
+      fd.write("[" + server +"]" + "\n")
+      fd.write(text + '\n')
+      fd.close()
+   except Exception as e:
+      print "Exception found at get_port"
+      raise e
 
+      
 def check_containers_existence(cmd, image):
    try:
       container = image + "_container2"
@@ -75,7 +96,7 @@ def check_containers_existence(cmd, image):
       if size_of_file > 0: 
          print "Call destroy containers"
          destroy_existing_containers(container)
-         print "call craete container after destory"
+         print "call create container after destory"
          create_containers(image, container)
       else:
          print "Call create containers"
@@ -107,6 +128,7 @@ def check_images():
         
        with open('tmp') as myfile: 
           if "pp186048_centos_sshd" in myfile.read():
+             print "Coming here in centos"
              command = 'docker ps -a | grep pp186048_centos_sshd'
              image = "pp186048_centos_sshd"
              check_containers_existence(command, image)
@@ -121,21 +143,11 @@ def check_images():
        raise e
      
 
-#def run_containers():
-#p = Popen("docker run -i -t --name="%s" dockerfile/python /bin/bash", stdin=PIPE)
-#p.communicate("timeout 0.5 python | head -n 500000 \n" % run_this)
-#    proc = subprocess.Popen 
-    
-    
 
 ### MAIN####  
 print "This script is used to create docker containers from the existing images"
 usage()
+if os.path.exists('hosts_new'):
+   os.remove('hosts_new')
 check_images()
-#run_containers()
-
-
-
-
-
 
